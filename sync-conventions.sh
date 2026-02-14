@@ -59,7 +59,6 @@ BRANCH=""
 VERSION=""
 FILES=()
 DRY_RUN=false
-SELF_UPDATED=false
 AUTO_COMMIT=true
 AUTO_PUSH=true
 
@@ -237,9 +236,11 @@ for file in "${FILES[@]}"; do
 		mv "$file.tmp" "$file"
 		log_detail "Updated"
 
-		# Warn if script updated itself
+		# Exit immediately if script updated itself to avoid parsing issues
 		if [[ "$file" == "$(basename "$0")" ]]; then
-			SELF_UPDATED=true
+			echo ""
+			log_warn "Script updated itself. Re-run to ensure consistency."
+			exit 0
 		fi
 	fi
 	UPDATED+=("$file")
@@ -280,10 +281,6 @@ elif [[ ${#UPDATED[@]} -eq 0 ]]; then
 	log_info "No files were updated"
 else
 	echo ""
-	if [[ "$SELF_UPDATED" == "true" ]]; then
-		log_warn "Script updated itself. Re-run to ensure consistency."
-	fi
-
 	if [[ "$AUTO_COMMIT" == "true" ]]; then
 		log_info "Auto-committing changes..."
 		git add "${UPDATED[@]}"
