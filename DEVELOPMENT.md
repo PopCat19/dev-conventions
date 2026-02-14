@@ -243,6 +243,9 @@ nix flake check
 
 ### Bash
 
+**Formatter:** `shfmt` (https://github.com/mvdan/sh)
+**Linter:** `shellcheck`
+
 **Conventions:**
 - Use `#!/usr/bin/env bash` shebang
 - Set strict mode at top of scripts
@@ -257,14 +260,14 @@ nix flake check
 - Use `[[ ]]` for tests (not `[ ]`)
   ```bash
   if [[ -f "$file" && "$var" == "value" ]]; then
-      echo "match"
+  	echo "match"
   fi
   ```
 - Use `local` for function variables
   ```bash
   function process() {
-      local temp_file=$(mktemp)
-      # ...
+  	local temp_file=$(mktemp)
+  	# ...
   }
   ```
 - Prefer `$()` over backticks for command substitution
@@ -274,8 +277,8 @@ nix flake check
 - Check command existence before use
   ```bash
   if ! command -v jq &> /dev/null; then
-      echo "jq not found"
-      exit 1
+  	echo "jq not found"
+  	exit 1
   fi
   ```
 
