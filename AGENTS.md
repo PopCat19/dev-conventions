@@ -54,6 +54,33 @@ Generates changelog from git history before merge.
 - Generates `CHANGELOG-pending.md` with commit list and file changes
 - After merge, renames with actual merge commit hash
 
+### sync-conventions.sh
+
+Syncs convention files from remote repository to target projects.
+
+**Usage:**
+```bash
+# Pull latest from main (default)
+./sync-conventions.sh
+
+# Pull specific version
+./sync-conventions.sh --version v1.2.0
+
+# Pull from custom remote/branch
+./sync-conventions.sh --remote https://github.com/myfork/dev-conventions --branch dev
+
+# Pull specific files only
+./sync-conventions.sh --files AGENTS.md,DEVELOPMENT.md
+
+# Preview changes without writing
+./sync-conventions.sh --dry-run
+```
+
+**Behavior:**
+- Fetches files from GitHub raw content URLs
+- Compares with existing files, skips unchanged
+- Stages updates for git review (does not auto-commit)
+
 ## Important Notice
 
 **Do not revise these files unless explicitly requested by the user:**
@@ -61,5 +88,6 @@ Generates changelog from git history before merge.
 - `DEVELOPMENT.md` — Established conventions for this project
 - `DEV-EXAMPLES.md` — Reference examples tied to DEVELOPMENT.md rules
 - `generate-changelog.sh` — Workflow script following project conventions
+- `sync-conventions.sh` — Workflow script following project conventions
 
 These files represent intentional design decisions. Modifications should only occur when the user explicitly states a need for changes.

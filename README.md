@@ -14,6 +14,7 @@ This repository contains opinionated development rules and conventions designed 
 | [`DEVELOPMENT.md`](DEVELOPMENT.md) | Comprehensive development rules and conventions (1.5~3k lines) |
 | [`DEV-EXAMPLES.md`](DEV-EXAMPLES.md) | Concrete examples demonstrating conventions in practice |
 | [`generate-changelog.sh`](generate-changelog.sh) | Script for generating changelogs from git history |
+| [`sync-conventions.sh`](sync-conventions.sh) | Script for syncing conventions to other projects |
 
 ## Usage
 
@@ -31,6 +32,28 @@ Add a reference in your project's instructions:
 # Project Instructions
 
 Before making changes, read and follow the conventions in DEVELOPMENT.md.
+```
+
+### Syncing Updates
+
+Use [`sync-conventions.sh`](sync-conventions.sh) to pull updates while keeping git tracking:
+
+```bash
+# Pull latest from main (default)
+./sync-conventions.sh
+
+# Pull specific version
+./sync-conventions.sh --version v1.2.0
+./sync-conventions.sh --version abc123
+
+# Pull from custom remote/branch
+./sync-conventions.sh --remote https://github.com/myfork/dev-conventions --branch dev
+
+# Pull specific files only
+./sync-conventions.sh --files AGENTS.md,DEVELOPMENT.md
+
+# Preview changes without writing
+./sync-conventions.sh --dry-run
 ```
 
 ## Topics Covered
