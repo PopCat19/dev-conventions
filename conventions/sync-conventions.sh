@@ -12,10 +12,10 @@
 #   ./sync-conventions.sh [OPTIONS]
 #
 # Options:
-#   --remote URL       Source repository URL (default: https://github.com/user/dev-conventions)
+#   --remote URL       Source repository URL (default: https://github.com/PopCat19/dev-conventions)
 #   --branch BRANCH    Branch to pull from (default: main)
 #   --version HASH     Specific commit hash or tag (default: latest on branch)
-#   --files LIST       Comma-separated list of files (default: all)
+#   --files LIST       Comma-separated list of files (default: all in conventions/)
 #   --dry-run          Show what would be downloaded without writing
 #   --no-commit        Skip auto-commit (only stage updated files)
 #   --push             Auto-push after commit (default: true)
@@ -37,7 +37,7 @@
 #   ./sync-conventions.sh --remote https://github.com/myfork/dev-conventions
 #
 #   # Pull specific files only
-#   ./sync-conventions.sh --files AGENTS.md,DEVELOPMENT.md
+#   ./sync-conventions.sh --files conventions/AGENTS.md,conventions/DEVELOPMENT.md
 
 set -Eeuo pipefail
 
@@ -52,7 +52,7 @@ trap cleanup_tmp ERR
 # Default values
 DEFAULT_REMOTE="https://github.com/PopCat19/dev-conventions"
 DEFAULT_BRANCH="main"
-DEFAULT_FILES=("AGENTS.md" "DEVELOPMENT.md" "DEV-EXAMPLES.md" "generate-changelog.sh" "sync-conventions.sh")
+DEFAULT_FILES=("conventions/AGENTS.md" "conventions/DEVELOPMENT.md" "conventions/DEV-EXAMPLES.md" "conventions/generate-changelog.sh" "conventions/sync-conventions.sh")
 
 REMOTE_URL=""
 BRANCH=""

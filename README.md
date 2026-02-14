@@ -4,23 +4,23 @@ Personal, language-agnostic development conventions for LLM agents.
 
 ## Overview
 
-This repository contains opinionated development rules and conventions designed to be referenced by LLM agents. Copy the contents (except this README) to any project, and encourage agents to fetch [`AGENTS.md`](AGENTS.md) or [`DEVELOPMENT.md`](DEVELOPMENT.md) into context to take effect.
+This repository contains opinionated development rules and conventions designed to be referenced by LLM agents. Copy the `conventions/` directory to any project, and encourage agents to fetch [`AGENTS.md`](conventions/AGENTS.md) or [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) into context to take effect.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| [`AGENTS.md`](AGENTS.md) | Quick reference for LLM assistants working with this repository |
-| [`DEVELOPMENT.md`](DEVELOPMENT.md) | Comprehensive development rules and conventions (1.5~3k lines) |
-| [`DEV-EXAMPLES.md`](DEV-EXAMPLES.md) | Concrete examples demonstrating conventions in practice |
-| [`generate-changelog.sh`](generate-changelog.sh) | Script for generating changelogs from git history |
-| [`sync-conventions.sh`](sync-conventions.sh) | Script for syncing conventions to other projects |
+| [`AGENTS.md`](conventions/AGENTS.md) | Quick reference for LLM assistants working with this repository |
+| [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) | Comprehensive development rules and conventions (1.5~3k lines) |
+| [`DEV-EXAMPLES.md`](conventions/DEV-EXAMPLES.md) | Concrete examples demonstrating conventions in practice |
+| [`generate-changelog.sh`](conventions/generate-changelog.sh) | Script for generating changelogs from git history |
+| [`sync-conventions.sh`](conventions/sync-conventions.sh) | Script for syncing conventions to other projects |
 
 ## Usage
 
 ### For New Projects
 
-1. Copy `AGENTS.md`, `DEVELOPMENT.md`, `DEV-EXAMPLES.md`, `generate-changelog.sh`, and `sync-conventions.sh` to your project root
+1. Copy the `conventions/` directory to your project root
 2. Instruct your LLM agent to read `AGENTS.md` or `DEVELOPMENT.md` into context
 3. The conventions will guide the agent's code generation and project structure
 
@@ -36,7 +36,7 @@ Before making changes, read and follow the conventions in DEVELOPMENT.md.
 
 ### Syncing Updates
 
-Use [`sync-conventions.sh`](sync-conventions.sh) to pull updates while keeping git tracking:
+Use [`sync-conventions.sh`](conventions/sync-conventions.sh) to pull updates while keeping git tracking:
 
 ```bash
 # Pull latest from main (default)

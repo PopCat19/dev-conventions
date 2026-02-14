@@ -42,10 +42,10 @@ Generates changelog from git history before merge.
 **Usage:**
 ```bash
 # Generate changelog before merge
-./generate-changelog.sh --target main
+./conventions/generate-changelog.sh --target main
 
 # Rename after merge with actual commit hash
-./generate-changelog.sh --rename
+./conventions/generate-changelog.sh --rename
 ```
 
 **Behavior:**
@@ -61,19 +61,19 @@ Syncs convention files from remote repository to target projects.
 **Usage:**
 ```bash
 # Pull latest from main (default)
-./sync-conventions.sh
+./conventions/sync-conventions.sh
 
 # Pull specific version
-./sync-conventions.sh --version v1.2.0
+./conventions/sync-conventions.sh --version v1.2.0
 
 # Pull from custom remote/branch
-./sync-conventions.sh --remote https://github.com/myfork/dev-conventions --branch dev
+./conventions/sync-conventions.sh --remote https://github.com/myfork/dev-conventions --branch dev
 
 # Pull specific files only
-./sync-conventions.sh --files AGENTS.md,DEVELOPMENT.md
+./conventions/sync-conventions.sh --files conventions/AGENTS.md,conventions/DEVELOPMENT.md
 
 # Preview changes without writing
-./sync-conventions.sh --dry-run
+./conventions/sync-conventions.sh --dry-run
 ```
 
 **Behavior:**
