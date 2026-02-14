@@ -27,10 +27,18 @@
 
 set -Eeuo pipefail
 
+# Determine project root (parent of conventions/ if script is in conventions/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$(basename "$SCRIPT_DIR")" == "conventions" ]]; then
+	PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+else
+	PROJECT_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || echo ".")"
+fi
+
 # Default values
 TARGET_BRANCH="main"
 RENAME_MODE=false
-ARCHIVE_DIR="changelog-archive"
+ARCHIVE_DIR="${PROJECT_ROOT}/changelog-archive"
 
 # Colors
 ANSI_CLEAR='\033[0m'
@@ -78,17 +86,17 @@ done
 
 # Rename mode: rename pending changelog with current HEAD hash
 if [[ "$RENAME_MODE" == "true" ]]; then
-	if [[ ! -f "CHANGELOG-pending.md" ]]; then
-		log_error "No CHANGELOG-pending.md found"
+	if [[ ! -f "${PROJECT_ROOT}/CHANGELOG-pending.md" ]]; then
+		log_error "No CHANGELOG-pending.md found in project root"
 		exit 1
 	fi
 
 	MERGE_HASH=$(git rev-parse --short HEAD)
-	mv "CHANGELOG-pending.md" "CHANGELOG-${MERGE_HASH}.md"
+	mv "${PROJECT_ROOT}/CHANGELOG-pending.md" "${PROJECT_ROOT}/CHANGELOG-${MERGE_HASH}.md"
 	log_info "Renamed: CHANGELOG-pending.md → CHANGELOG-${MERGE_HASH}.md"
 	echo ""
 	echo "To amend the merge commit:"
-	echo "  git add CHANGELOG-${MERGE_HASH}.md ${ARCHIVE_DIR}/"
+	echo "  git add ${PROJECT_ROOT}/CHANGELOG-${MERGE_HASH}.md ${ARCHIVE_DIR}/"
 	echo "  git commit --amend --no-edit"
 	exit 0
 fi
@@ -120,16 +128,16 @@ log_info "Found $COMMIT_COUNT commits to include in changelog"
 
 # Archive existing root changelogs
 mkdir -p "$ARCHIVE_DIR"
-for old in CHANGELOG-*.md; do
+for old in "${PROJECT_ROOT}"/CHANGELOG-*.md; do
 	if [[ -f "$old" ]]; then
 		mv "$old" "$ARCHIVE_DIR/"
-		log_info "Archived: $old → $ARCHIVE_DIR/"
+		log_info "Archived: $(basename "$old") → changelog-archive/"
 	fi
 done
 
 # Generate changelog
 PLACEHOLDER="pending"
-CHANGELOG="CHANGELOG-${PLACEHOLDER}.md"
+CHANGELOG="${PROJECT_ROOT}/CHANGELOG-${PLACEHOLDER}.md"
 
 # Detect merge type based on branch relationship
 MERGE_TYPE="Merge commit"
