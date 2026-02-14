@@ -126,9 +126,13 @@ fi
 COMMIT_COUNT=$(echo "$COMMITS" | wc -l)
 log_info "Found $COMMIT_COUNT commits to include in changelog"
 
-# Archive existing root changelogs
+# Archive existing root changelogs (excluding pending which may exist from aborted run)
 mkdir -p "$ARCHIVE_DIR"
 for old in "${PROJECT_ROOT}"/CHANGELOG-*.md; do
+	# Skip if no matches (glob returned literal pattern)
+	[[ -e "$old" ]] || continue
+	# Skip pending changelog - will be regenerated
+	[[ "$(basename "$old")" == "CHANGELOG-pending.md" ]] && continue
 	if [[ -f "$old" ]]; then
 		mv "$old" "$ARCHIVE_DIR/"
 		log_info "Archived: $(basename "$old") → changelog-archive/"
