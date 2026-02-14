@@ -38,6 +38,14 @@
 
 set -Eeuo pipefail
 
+# Cleanup function for .tmp files on error
+cleanup_tmp() {
+    for f in *.tmp; do
+        [[ -f "$f" ]] && rm -f "$f"
+    done
+}
+trap cleanup_tmp ERR
+
 # Default values
 DEFAULT_REMOTE="https://github.com/PopCat19/dev-conventions"
 DEFAULT_BRANCH="main"
@@ -48,6 +56,7 @@ BRANCH=""
 VERSION=""
 FILES=()
 DRY_RUN=false
+SELF_UPDATED=false
 
 # Colors
 ANSI_CLEAR='\033[0m'
@@ -206,8 +215,19 @@ for file in "${FILES[@]}"; do
     if [[ "$DRY_RUN" == "true" ]]; then
         log_detail "Would update (dry-run)"
     else
-        echo "$content" > "$file"
+        # Write to temp file first, then atomic move
+        echo "$content" > "$file.tmp"
+        # Preserve permissions if file exists
+        if [[ -f "$file" ]]; then
+            chmod --reference="$file" "$file.tmp" 2>/dev/null || true
+        fi
+        mv "$file.tmp" "$file"
         log_detail "Updated"
+
+        # Warn if script updated itself
+        if [[ "$file" == "$(basename "$0")" ]]; then
+            SELF_UPDATED=true
+        fi
     fi
     UPDATED+=("$file")
 done
@@ -244,6 +264,9 @@ if [[ "$DRY_RUN" == "true" ]]; then
     log_info "Dry-run complete, no files were modified"
 else
     echo ""
+    if [[ "$SELF_UPDATED" == "true" ]]; then
+        log_warn "Script updated itself. Re-run to ensure consistency."
+    fi
     log_info "Files updated. Review changes and commit:"
     log_detail "git diff"
     log_detail "git add ${FILES[*]}"
