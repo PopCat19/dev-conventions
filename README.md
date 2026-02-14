@@ -20,7 +20,7 @@ This repository contains opinionated development rules and conventions designed 
 
 ### For New Projects
 
-1. Copy `AGENTS.md`, `DEVELOPMENT.md`, `DEV-EXAMPLES.md`, and `generate-changelog.sh` to your project root
+1. Copy `AGENTS.md`, `DEVELOPMENT.md`, `DEV-EXAMPLES.md`, `generate-changelog.sh`, and `sync-conventions.sh` to your project root
 2. Instruct your LLM agent to read `AGENTS.md` or `DEVELOPMENT.md` into context
 3. The conventions will guide the agent's code generation and project structure
 
