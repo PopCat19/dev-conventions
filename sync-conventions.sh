@@ -206,6 +206,8 @@ fetch_file() {
 UPDATED=()
 SKIPPED=()
 FAILED=()
+NEEDS_COMMIT=()
+SELF_UPDATED=false
 
 for file in "${FILES[@]}"; do
 	echo -e "${ANSI_CYAN}  Checking $file...${ANSI_CLEAR}"
@@ -218,8 +220,26 @@ for file in "${FILES[@]}"; do
 	if [[ -f "$file" ]]; then
 		existing=$(cat "$file")
 		if [[ "$content" == "$existing" ]]; then
-			log_detail "Unchanged, skipping"
-			SKIPPED+=("$file")
+			# Content matches, but check if file needs git tracking
+			if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+				if ! git ls-files --error-unmatch "$file" >/dev/null 2>&1; then
+					# File is untracked
+					log_detail "Untracked, will stage"
+					NEEDS_COMMIT+=("$file")
+				elif git diff --quiet "$file" 2>/dev/null; then
+					# File is tracked and unchanged
+					log_detail "Unchanged, skipping"
+					SKIPPED+=("$file")
+					continue
+				else
+					# File has uncommitted changes (content matches remote)
+					log_detail "Has uncommitted changes, will stage"
+					NEEDS_COMMIT+=("$file")
+				fi
+			else
+				log_detail "Unchanged, skipping"
+				SKIPPED+=("$file")
+			fi
 			continue
 		fi
 	fi
@@ -236,14 +256,13 @@ for file in "${FILES[@]}"; do
 		mv "$file.tmp" "$file"
 		log_detail "Updated"
 
-		# Exit immediately if script updated itself to avoid parsing issues
+		# Track if script updated itself
 		if [[ "$file" == "$(basename "$0")" ]]; then
-			echo ""
-			log_warn "Script updated itself. Re-run to ensure consistency."
-			exit 0
+			SELF_UPDATED=true
 		fi
 	fi
 	UPDATED+=("$file")
+	NEEDS_COMMIT+=("$file")
 done
 
 # Cleanup
@@ -253,6 +272,7 @@ rm -f /tmp/sync-content
 echo ""
 log_info "Summary"
 log_detail "Updated: ${#UPDATED[@]} files"
+log_detail "Untracked/modified: $((${#NEEDS_COMMIT[@]} - ${#UPDATED[@]})) files"
 log_detail "Skipped: ${#SKIPPED[@]} files (unchanged)"
 log_detail "Failed: ${#FAILED[@]} files"
 
@@ -276,16 +296,16 @@ fi
 if [[ "$DRY_RUN" == "true" ]]; then
 	echo ""
 	log_info "Dry-run complete, no files were modified"
-elif [[ ${#UPDATED[@]} -eq 0 ]]; then
+elif [[ ${#NEEDS_COMMIT[@]} -eq 0 ]]; then
 	echo ""
-	log_info "No files were updated"
+	log_info "No files need syncing"
 else
 	echo ""
 	if [[ "$AUTO_COMMIT" == "true" ]]; then
 		log_info "Auto-committing changes..."
-		git add "${UPDATED[@]}"
+		git add "${NEEDS_COMMIT[@]}"
 		git commit -m "chore: sync dev-conventions"
-		log_detail "Committed ${#UPDATED[@]} files"
+		log_detail "Committed ${#NEEDS_COMMIT[@]} files"
 
 		if [[ "$AUTO_PUSH" == "true" ]]; then
 			log_info "Auto-pushing..."
@@ -295,7 +315,13 @@ else
 	else
 		log_info "Files updated. Review changes and commit:"
 		log_detail "git diff"
-		log_detail "git add ${FILES[*]}"
+		log_detail "git add ${NEEDS_COMMIT[*]}"
 		log_detail 'git commit -m "chore: sync dev-conventions"'
 	fi
+fi
+
+# Warn if script updated itself
+if [[ "$SELF_UPDATED" == "true" ]]; then
+	echo ""
+	log_warn "Script updated itself. Re-run to ensure consistency."
 fi
