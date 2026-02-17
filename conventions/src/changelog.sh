@@ -4,8 +4,7 @@
 #
 # This module provides:
 # - Changelog generation from git history
-# - Interactive merge workflow
-# - Conflict resolution helpers
+# - Merge workflow with automatic backup
 # - State management for resumable operations
 #
 # shellcheck shell=bash
@@ -174,50 +173,12 @@ handle_pending_changelog() {
 	esac
 }
 
-# Force merge with conflict resolution
-force_merge_theirs() {
-	local current_branch="$1"
-	local target_branch="$2"
-
-	log_warn "Auto-resolving conflicts by preferring incoming changes..."
-
-	get_conflicted_files | while IFS= read -r file; do
-		[[ -z "$file" ]] && continue
-		if [[ ! -e "$file" ]]; then
-			git rm -f "$file" 2>/dev/null || true
-			continue
-		fi
-		if git ls-files -u -- "$file" 2>/dev/null | grep -q "^[0-9]* [0-9a-f]* 3"; then
-			if git show ":3:$file" >"$file" 2>/dev/null; then
-				git add "$file" && continue
-			fi
-		fi
-		if git ls-files -u -- "$file" 2>/dev/null | grep -q "^[0-9]* [0-9a-f]* 2"; then
-			git rm -f -- "$file" 2>/dev/null || true
-			continue
-		fi
-		if git checkout --theirs -- "$file" 2>/dev/null; then
-			git add -- "$file" 2>/dev/null && continue
-		else
-			log_warn "Could not auto-resolve: $file (resolve manually)"
-		fi
-	done
-
-	# Clean up working tree: remove files not in the index
-	# This handles leftover files from the "losing" side of rename/rename conflicts
-	git checkout -- . 2>/dev/null || true
-	git clean -fd 2>/dev/null || true
-
-	git commit -m "Merge branch '${current_branch}' into ${target_branch} (force theirs)"
-	log_info "Force merge completed with incoming changes"
-}
-
 # Main changelog command
 cmd_changelog() {
 	local target_branch=""
 	local rename_mode=false
 	local generate_only=false
-	local use_theirs=false
+	local use_theirs=true # Default to --theirs for automatic conflict resolution
 
 	# Parse arguments
 	while [[ $# -gt 0 ]]; do
@@ -236,6 +197,10 @@ cmd_changelog() {
 			;;
 		--theirs)
 			use_theirs=true
+			shift
+			;;
+		--no-theirs)
+			use_theirs=false
 			shift
 			;;
 		--yes | -y)
@@ -428,77 +393,11 @@ cmd_changelog() {
 	git checkout "$target_branch"
 	git pull origin "$target_branch" 2>/dev/null || true
 
-	# Step 4: Merge
+	# Step 4: Merge using merge module
 	log_info "Merging ${current_branch} into ${target_branch}..."
-	local merge_opts="--no-ff"
-
-	if [[ "$use_theirs" == "true" ]]; then
-		merge_opts="--no-ff --strategy-option=theirs"
-		log_info "Using --strategy-option=theirs (preferring incoming changes)"
+	if ! perform_merge "$current_branch" "$target_branch" "$use_theirs"; then
+		return 1
 	fi
-
-	# shellcheck disable=SC2086
-	if ! git merge $merge_opts "$current_branch" -m "Merge branch '${current_branch}' into ${target_branch}"; then
-		log_error "Merge conflicts detected"
-
-		if [[ "$SKIP_CONFIRM" != "true" ]]; then
-			echo ""
-			local conflict_count
-			conflict_count=$(get_conflicted_files | wc -l)
-			echo "Conflicting files ($conflict_count total):"
-			echo "=================="
-			get_conflicted_files | sed 's/^/  /'
-			echo ""
-
-			# Conflict resolution menu
-			local choice
-			choice=$(choose "force    Force merge (prefer incoming)" "abort    Exit and resolve manually")
-			case "$choice" in
-			force)
-				# Continue to force merge below
-				;;
-			abort | *)
-				log_info "Aborted - resolve conflicts manually"
-				echo ""
-				echo "Resolve conflicts, then:"
-				echo "  1. git add <resolved-files>"
-				echo "  2. git commit"
-				echo "  3. dev-conventions changelog --rename"
-				return 1
-				;;
-			esac
-
-			log_prompt "Type 'I understand' to force merge (prefers incoming changes): "
-			local confirmation
-			read -r confirmation
-			if [[ "${confirmation,,}" == "i understand" ]]; then
-				# Create backup tag
-				local backup_tag
-				backup_tag="${target_branch}-$(date -u +'%Y%m%d-%H%M%S')"
-				git tag -a "$backup_tag" -m "Backup before force merge of ${current_branch}"
-				log_info "Created backup tag: ${backup_tag}"
-
-				force_merge_theirs "$current_branch" "$target_branch"
-			else
-				log_info "Aborted - resolve conflicts manually"
-				echo ""
-				echo "Resolve conflicts, then:"
-				echo "  1. git add <resolved-files>"
-				echo "  2. git commit"
-				echo "  3. dev-conventions changelog --rename"
-				return 1
-			fi
-		else
-			echo ""
-			echo "Resolve conflicts, then:"
-			echo "  1. git add <resolved-files>"
-			echo "  2. git commit"
-			echo "  3. dev-conventions changelog --rename"
-			return 1
-		fi
-	fi
-
-	log_info "Merged ${current_branch} into ${target_branch}"
 
 	# Update state
 	if [[ -f "$STATE_FILE" ]]; then

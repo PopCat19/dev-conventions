@@ -54,6 +54,7 @@ export SKIP_CONFIRM=false
 
 # Source modules
 source "${SRC_DIR}/lib.sh"
+source "${SRC_DIR}/merge.sh"
 source "${SRC_DIR}/changelog.sh"
 source "${SRC_DIR}/sync.sh"
 source "${SRC_DIR}/lint.sh"
@@ -106,7 +107,8 @@ Options:
   --target BRANCH    Target branch (prompts if not specified)
   --rename           Rename pending changelog with current HEAD hash
   --generate-only    Generate changelog without merge workflow
-  --theirs           Use --strategy-option=theirs to prefer incoming changes
+  --theirs           Auto-resolve conflicts preferring incoming (default)
+  --no-theirs        Disable auto-conflict resolution
   --yes, -y          Skip all confirmation prompts
   --help             Show this help message
 
@@ -119,9 +121,6 @@ Examples:
 
   # Full automated merge (no prompts)
   dev-conventions changelog --target dev --yes
-
-  # Auto-resolve conflicts with --theirs
-  dev-conventions changelog --target dev --theirs
 
   # Rename after merge
   dev-conventions changelog --rename
