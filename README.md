@@ -1,62 +1,61 @@
 # Dev Conventions
 
-Personal, language-agnostic development conventions for LLM agents.
+Language-agnostic development conventions for LLM agents.
 
 ## Overview
 
-This repository contains opinionated development rules and conventions designed to be referenced by LLM agents. Copy the `conventions/` directory to any project, and encourage agents to fetch [`AGENTS.md`](conventions/AGENTS.md) or [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) into context to take effect.
+Copy `conventions/` to any project. Point LLM agents at `AGENTS.md` or `DEVELOPMENT.md` to apply conventions.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| [`AGENTS.md`](conventions/AGENTS.md) | Quick reference for LLM assistants working with this repository |
-| [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) | Comprehensive development rules and conventions (1.5~3k lines) |
-| [`DEV-EXAMPLES.md`](conventions/DEV-EXAMPLES.md) | Concrete examples demonstrating conventions in practice |
-| [`generate-changelog.sh`](conventions/generate-changelog.sh) | Script for generating changelogs from git history |
-| [`sync-conventions.sh`](conventions/sync-conventions.sh) | Script for syncing conventions to other projects |
+| [`AGENTS.md`](conventions/AGENTS.md) | Quick reference for LLM assistants |
+| [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) | Comprehensive development rules (1.5~3k lines) |
+| [`DEV-EXAMPLES.md`](conventions/DEV-EXAMPLES.md) | Concrete examples demonstrating conventions |
+| [`dev-conventions.sh`](conventions/dev-conventions.sh) | Unified CLI (changelog, sync, lint) |
+| [`src/lib.sh`](conventions/src/lib.sh) | Shared utilities |
+| [`src/changelog.sh`](conventions/src/changelog.sh) | Changelog generation and merge workflow |
+| [`src/sync.sh`](conventions/src/sync.sh) | Remote convention file syncing |
+| [`src/lint.sh`](conventions/src/lint.sh) | Shell script linting and formatting |
+
+## Setup
+
+1. Copy the `conventions/` directory to your project root
+2. Make the CLI executable: `chmod +x conventions/dev-conventions.sh`
+3. Point agents at `AGENTS.md` or `DEVELOPMENT.md`
 
 ## Usage
 
-### For New Projects
-
-1. Copy the `conventions/` directory to your project root
-2. Instruct your LLM agent to read `AGENTS.md` or `DEVELOPMENT.md` into context
-3. The conventions will guide the agent's code generation and project structure
-
-### For Existing Projects
-
-Add a reference in your project's instructions:
-
-```markdown
-# Project Instructions
-
-Before making changes, read and follow the conventions in DEVELOPMENT.md.
-```
-
-### Syncing Updates
-
-Use [`sync-conventions.sh`](conventions/sync-conventions.sh) to pull updates while keeping git tracking:
-
 ```bash
-# Pull latest from main (default)
-./sync-conventions.sh
+# Interactive TUI (requires gum)
+./conventions/dev-conventions.sh
 
-# Pull specific version
-./sync-conventions.sh --version v1.2.0
-./sync-conventions.sh --version abc123
+# Sync conventions from remote
+./conventions/dev-conventions.sh sync
+./conventions/dev-conventions.sh sync --branch dev
+./conventions/dev-conventions.sh sync --version v1.2.0
+./conventions/dev-conventions.sh sync --dry-run
 
-# Pull from custom remote/branch
-./sync-conventions.sh --remote https://github.com/myfork/dev-conventions --branch dev
+# Generate changelog and merge
+./conventions/dev-conventions.sh changelog
+./conventions/dev-conventions.sh changelog --target dev
+./conventions/dev-conventions.sh changelog --target dev --yes
+./conventions/dev-conventions.sh changelog --target dev --theirs
+./conventions/dev-conventions.sh changelog --generate-only
+./conventions/dev-conventions.sh changelog --rename
 
-# Pull specific files only
-./sync-conventions.sh --files AGENTS.md,DEVELOPMENT.md
+# Lint shell scripts
+./conventions/dev-conventions.sh lint
+./conventions/dev-conventions.sh lint --format
+./conventions/dev-conventions.sh lint --install-hook
 
-# Preview changes without writing
-./sync-conventions.sh --dry-run
+# Help
+./conventions/dev-conventions.sh help
+./conventions/dev-conventions.sh changelog --help
 ```
 
-## Topics Covered
+## Conventions Covered
 
 - File headers and code style (Nix, Fish, Python, Bash, Rust, Go, TypeScript)
 - Naming conventions and project structure
@@ -67,9 +66,4 @@ Use [`sync-conventions.sh`](conventions/sync-conventions.sh) to pull updates whi
 - Validation and CI/CD configuration
 - Core principles (KISS, DRY, maintainable over clever)
 
-## Principles
-
-- **KISS:** Keep It Simple, Stupid
-- **DRY:** Don't Repeat Yourself
-- **Maintainable over clever:** Code is read 10x more than written
-- **Lazy optimization:** Reduce manual maintenance needs where critical
+See [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) for full details.
