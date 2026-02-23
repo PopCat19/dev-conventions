@@ -18,17 +18,33 @@ fi
 # Default values
 DEFAULT_REMOTE="https://github.com/PopCat19/dev-conventions"
 DEFAULT_BRANCH="main"
-DEFAULT_FILES=(
-	"conventions/AGENTS.md"
-	"conventions/DEVELOPMENT.md"
-	"conventions/DEV-EXAMPLES.md"
-	"conventions/dev-conventions.sh"
-	"conventions/src/lib.sh"
-	"conventions/src/merge.sh"
-	"conventions/src/changelog.sh"
-	"conventions/src/sync.sh"
-	"conventions/src/lint.sh"
-)
+
+# Build default files list dynamically
+# Discovers all .md files in conventions/ plus shell scripts in conventions/src/
+build_default_files() {
+	local files=()
+
+	# Discover all .md files in conventions/ (non-recursive)
+	local md_files
+	mapfile -t md_files < <(find conventions -maxdepth 1 -name "*.md" -type f 2>/dev/null | sort)
+	files+=("${md_files[@]}")
+
+	# Add shell scripts (fixed set - these are the CLI components)
+	files+=(
+		"conventions/dev-conventions.sh"
+		"conventions/src/lib.sh"
+		"conventions/src/merge.sh"
+		"conventions/src/changelog.sh"
+		"conventions/src/sync.sh"
+		"conventions/src/lint.sh"
+	)
+
+	echo "${files[@]}"
+}
+
+DEFAULT_FILES=()
+# shellcheck disable=SC2034
+read -ra DEFAULT_FILES <<< "$(build_default_files)"
 
 # Fetch file from GitHub
 fetch_file() {
