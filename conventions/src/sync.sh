@@ -127,6 +127,61 @@ fetch_file() {
 	return 0
 }
 
+# Get file SHA from GitHub API for change detection
+get_file_sha() {
+	local file="$1"
+	local remote_url="$2"
+	local ref="$3"
+	local repo_path
+
+	if [[ "$remote_url" == https://github.com/* ]]; then
+		repo_path="${remote_url#https://github.com/}"
+	else
+		return 1
+	fi
+
+	local api_url="https://api.github.com/repos/${repo_path}/contents/${file}?ref=${ref}"
+	local response
+	response=$(curl -sSL "$api_url" 2>/dev/null) || return 1
+
+	# Extract SHA using jq or grep
+	local sha
+	if command -v jq &>/dev/null; then
+		sha=$(jq -r '.sha' <<<"$response" 2>/dev/null)
+	else
+		sha=$(grep -oP '"sha"\s*:\s*"\K[^"]+' <<<"$response" 2>/dev/null)
+	fi
+
+	if [[ -n "$sha" && "$sha" != "null" ]]; then
+		echo "$sha"
+		return 0
+	fi
+	return 1
+}
+
+# Get cached SHA for a file
+get_cached_sha() {
+	local file="$1"
+	local cache_dir=".dev-conventions-sync-cache"
+	local cache_file="${cache_dir}/${file}.sha"
+
+	if [[ -f "$cache_file" ]]; then
+		cat "$cache_file"
+		return 0
+	fi
+	return 1
+}
+
+# Save SHA to cache
+save_sha_cache() {
+	local file="$1"
+	local sha="$2"
+	local cache_dir=".dev-conventions-sync-cache"
+
+	mkdir -p "$cache_dir"
+	echo "$sha" >"${cache_dir}/${file}.sha"
+}
+
 # Main sync command
 cmd_sync() {
 	local remote_url=""
@@ -218,6 +273,40 @@ cmd_sync() {
 	for file in "${files[@]}"; do
 		echo -e "${ANSI_CYAN}  Checking $file...${ANSI_CLEAR}"
 
+		# Get remote SHA for change detection
+		local remote_sha
+		remote_sha=$(get_file_sha "$file" "$remote_url" "$ref") || {
+			log_warn "Could not get SHA for $file, falling back to content diff"
+		}
+
+		# Check against cached SHA if available
+		if [[ -n "$remote_sha" ]]; then
+			local cached_sha
+			cached_sha=$(get_cached_sha "$file") || cached_sha=""
+
+			if [[ -n "$cached_sha" && "$cached_sha" == "$remote_sha" ]]; then
+				# SHA matches cache - check if file exists and is tracked
+				if [[ -f "$file" ]]; then
+					local is_tracked=false
+					git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
+
+					if [[ "$is_tracked" == "true" ]] && git diff --quiet "$file" 2>/dev/null; then
+						log_detail "Unchanged (SHA match), skipping"
+						skipped+=("$file")
+						continue
+					fi
+				else
+					# File doesn't exist locally but SHA matches - strange, skip
+					log_detail "SHA matches but file missing, skipping"
+					skipped+=("$file")
+					continue
+				fi
+			else
+				log_detail "Remote changed (SHA mismatch), fetching..."
+			fi
+		fi
+
+		# Fetch content (either no SHA available or SHA mismatch)
 		local content
 		if ! content=$(fetch_file "$file" "$remote_url" "$ref"); then
 			failed+=("$file")
@@ -226,7 +315,12 @@ cmd_sync() {
 
 		# Compare content if file exists
 		if [[ -f "$file" ]] && diff -q <(cat "$file") <(echo "$content") >/dev/null 2>&1; then
-			# Content matches remote — check if git tracking is needed
+			# Content matches remote — cache the SHA
+			if [[ -n "$remote_sha" ]]; then
+				save_sha_cache "$file" "$remote_sha"
+			fi
+
+			# Check if git tracking is needed
 			local is_tracked=false
 			git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
 
@@ -252,6 +346,11 @@ cmd_sync() {
 			fi
 			mv "$file.tmp" "$file"
 			log_detail "Updated"
+
+			# Cache the SHA after successful update
+			if [[ -n "$remote_sha" ]]; then
+				save_sha_cache "$file" "$remote_sha"
+			fi
 
 			# Track if script updated itself
 			if [[ "$file" == "conventions/dev-conventions" ]]; then
