@@ -375,7 +375,7 @@ cmd_sync() {
 	if [[ "$dry_run" == "true" ]]; then
 		echo ""
 		log_info "Dry-run complete, no files were modified"
-	elif [[ ${#needs_commit[@]} -eq 0 ]]; then
+	elif [[ ${#needs_commit[@]} -eq 0 && -z "$(git status --porcelain .dev-conventions-sync-cache/ 2>/dev/null)" ]]; then
 		echo ""
 		log_info "No files need syncing"
 	else
@@ -383,6 +383,12 @@ cmd_sync() {
 		if [[ "$auto_commit" == "true" ]]; then
 			log_info "Auto-committing changes..."
 			git add "${needs_commit[@]}"
+
+			# Also commit SHA cache updates
+			if [[ -d ".dev-conventions-sync-cache" ]]; then
+				git add .dev-conventions-sync-cache/
+			fi
+
 			git commit -m "chore: sync dev-conventions"
 			log_detail "Committed ${#needs_commit[@]} files"
 
