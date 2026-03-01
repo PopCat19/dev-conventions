@@ -284,36 +284,11 @@ cmd_sync() {
 			log_warn "Could not get SHA for $file, falling back to content diff"
 		}
 
-		# Check against cached SHA if available
-		if [[ -n "$remote_sha" ]]; then
-			local cached_sha
-			cached_sha=$(get_cached_sha "$file") || cached_sha=""
+		# Get remote SHA for potential caching
+		local remote_sha
+		remote_sha=$(get_file_sha "$file" "$remote_url" "$ref") || remote_sha=""
 
-			if [[ -n "$cached_sha" ]]; then
-				if [[ "$cached_sha" == "$remote_sha" ]]; then
-					# SHA matches cache - check if file exists and is tracked
-					if [[ -f "$file" ]]; then
-						local is_tracked=false
-						git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
-
-						if [[ "$is_tracked" == "true" ]] && git diff --quiet "$file" 2>/dev/null; then
-							log_detail "Unchanged (SHA match), skipping"
-							skipped+=("$file")
-							continue
-						fi
-					else
-						# File doesn't exist locally but SHA matches - strange, skip
-						log_detail "SHA matches but file missing, skipping"
-						skipped+=("$file")
-						continue
-					fi
-				else
-					log_detail "Remote changed (SHA mismatch), fetching..."
-				fi
-			fi
-		fi
-
-		# Fetch content (either no SHA available or SHA mismatch)
+		# Fetch content
 		local content
 		if ! content=$(fetch_file "$file" "$remote_url" "$ref"); then
 			failed+=("$file")
@@ -322,7 +297,7 @@ cmd_sync() {
 
 		# Compare content if file exists
 		if [[ -f "$file" ]] && diff -q <(cat "$file") <(echo "$content") >/dev/null 2>&1; then
-			# Content matches remote — cache the SHA
+			# Content matches remote — cache the SHA if we got one
 			if [[ -n "$remote_sha" ]]; then
 				save_sha_cache "$file" "$remote_sha"
 			fi
@@ -342,6 +317,7 @@ cmd_sync() {
 			continue
 		fi
 
+		# Content differs - update file
 		if [[ "$dry_run" == "true" ]]; then
 			log_detail "Would update (dry-run)"
 		else
@@ -360,7 +336,7 @@ cmd_sync() {
 			fi
 
 			# Track if script updated itself
-			if [[ "$file" == "conventions/dev-conventions" ]]; then
+			if [[ "$file" == "conventions/dev-conventions.sh" ]]; then
 				self_updated=true
 			fi
 		fi
