@@ -37,6 +37,7 @@ build_default_files() {
 		"conventions/src/changelog.sh"
 		"conventions/src/sync.sh"
 		"conventions/src/lint.sh"
+		"conventions/src/check-context.sh"
 	)
 
 	echo "${files[@]}"
@@ -44,7 +45,7 @@ build_default_files() {
 
 DEFAULT_FILES=()
 # shellcheck disable=SC2034
-read -ra DEFAULT_FILES <<< "$(build_default_files)"
+read -ra DEFAULT_FILES <<<"$(build_default_files)"
 
 # Fetch file from GitHub (tries raw URL first, falls back to API)
 fetch_file() {
