@@ -166,7 +166,7 @@ get_cached_sha() {
 	local cache_file="${cache_dir}/${file}.sha"
 
 	if [[ -f "$cache_file" ]]; then
-		cat "$cache_file"
+		printf '%s' "$(cat "$cache_file")"
 		return 0
 	fi
 	return 1
@@ -177,12 +177,11 @@ save_sha_cache() {
 	local file="$1"
 	local sha="$2"
 	local cache_dir=".dev-conventions-sync-cache"
+	local cache_file="${cache_dir}/${file}.sha"
 
 	# Create directory structure if needed (e.g., conventions/ subdir)
-	local dir
-	dir=$(dirname "${cache_dir}/${file}")
-	mkdir -p "$dir"
-	echo "$sha" >"${cache_dir}/${file}.sha"
+	mkdir -p "$(dirname "$cache_file")"
+	printf '%s' "$sha" >"$cache_file"
 }
 
 # Main sync command
