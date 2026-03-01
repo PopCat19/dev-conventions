@@ -278,31 +278,30 @@ cmd_sync() {
 	for file in "${files[@]}"; do
 		echo -e "${ANSI_CYAN}  Checking $file...${ANSI_CLEAR}"
 
-		# Get remote SHA for change detection
-		local remote_sha
+		local cached_sha remote_sha=""
+		cached_sha=$(get_cached_sha "$file") || cached_sha=""
+
 		remote_sha=$(get_file_sha "$file" "$remote_url" "$ref") || {
 			log_warn "Could not get SHA for $file, falling back to content diff"
 		}
 
-		# Get remote SHA for potential caching
-		local remote_sha
-		remote_sha=$(get_file_sha "$file" "$remote_url" "$ref") || remote_sha=""
+		if [[ -n "$remote_sha" && "$remote_sha" == "$cached_sha" ]]; then
+			log_detail "Unchanged (SHA cache hit), skipping"
+			skipped+=("$file")
+			continue
+		fi
 
-		# Fetch content
 		local content
 		if ! content=$(fetch_file "$file" "$remote_url" "$ref"); then
 			failed+=("$file")
 			continue
 		fi
 
-		# Compare content if file exists
 		if [[ -f "$file" ]] && diff -q <(cat "$file") <(echo "$content") >/dev/null 2>&1; then
-			# Content matches remote — cache the SHA if we got one
 			if [[ -n "$remote_sha" ]]; then
 				save_sha_cache "$file" "$remote_sha"
 			fi
 
-			# Check if git tracking is needed
 			local is_tracked=false
 			git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
 
@@ -317,25 +316,20 @@ cmd_sync() {
 			continue
 		fi
 
-		# Content differs - update file
 		if [[ "$dry_run" == "true" ]]; then
 			log_detail "Would update (dry-run)"
 		else
-			# Write to temp file first, then atomic move
 			echo "$content" >"$file.tmp"
-			# Preserve permissions if file exists
 			if [[ -f "$file" ]]; then
 				chmod --reference="$file" "$file.tmp" 2>/dev/null || true
 			fi
 			mv "$file.tmp" "$file"
 			log_detail "Updated"
 
-			# Cache the SHA after successful update
 			if [[ -n "$remote_sha" ]]; then
 				save_sha_cache "$file" "$remote_sha"
 			fi
 
-			# Track if script updated itself
 			if [[ "$file" == "conventions/dev-conventions.sh" ]]; then
 				self_updated=true
 			fi
@@ -375,33 +369,36 @@ cmd_sync() {
 	if [[ "$dry_run" == "true" ]]; then
 		echo ""
 		log_info "Dry-run complete, no files were modified"
-	elif [[ ${#needs_commit[@]} -eq 0 && -z "$(git status --porcelain .dev-conventions-sync-cache/ 2>/dev/null)" ]]; then
-		echo ""
-		log_info "No files need syncing"
 	else
-		echo ""
-		if [[ "$auto_commit" == "true" ]]; then
-			log_info "Auto-committing changes..."
-			git add "${needs_commit[@]}"
+		local cache_dirty=false
+		if [[ -n "$(git status --porcelain .dev-conventions-sync-cache/ 2>/dev/null)" ]]; then
+			cache_dirty=true
+		fi
 
-			# Also commit SHA cache updates
-			if [[ -d ".dev-conventions-sync-cache" ]]; then
-				git add .dev-conventions-sync-cache/
-			fi
-
-			git commit -m "chore: sync dev-conventions"
-			log_detail "Committed ${#needs_commit[@]} files"
-
-			if [[ "$auto_push" == "true" ]]; then
-				log_info "Auto-pushing..."
-				git push
-				log_detail "Pushed to remote"
-			fi
+		if [[ ${#needs_commit[@]} -eq 0 && "$cache_dirty" == "false" ]]; then
+			echo ""
+			log_info "No files need syncing"
 		else
-			log_info "Files updated. Review changes and commit:"
-			log_detail "git diff"
-			log_detail "git add ${needs_commit[*]}"
-			log_detail 'git commit -m "chore: sync dev-conventions"'
+			echo ""
+			if [[ "$auto_commit" == "true" ]]; then
+				log_info "Auto-committing changes..."
+				[[ ${#needs_commit[@]} -gt 0 ]] && git add "${needs_commit[@]}"
+				[[ -d ".dev-conventions-sync-cache" ]] && git add .dev-conventions-sync-cache/
+
+				git commit -m "chore: sync dev-conventions"
+				log_detail "Committed ${#needs_commit[@]} files"
+
+				if [[ "$auto_push" == "true" ]]; then
+					log_info "Auto-pushing..."
+					git push
+					log_detail "Pushed to remote"
+				fi
+			else
+				log_info "Files updated. Review changes and commit:"
+				log_detail "git diff"
+				log_detail "git add ${needs_commit[*]}"
+				log_detail 'git commit -m "chore: sync dev-conventions"'
+			fi
 		fi
 	fi
 
