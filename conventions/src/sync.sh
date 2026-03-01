@@ -289,25 +289,27 @@ cmd_sync() {
 			local cached_sha
 			cached_sha=$(get_cached_sha "$file") || cached_sha=""
 
-			if [[ -n "$cached_sha" && "$cached_sha" == "$remote_sha" ]]; then
-				# SHA matches cache - check if file exists and is tracked
-				if [[ -f "$file" ]]; then
-					local is_tracked=false
-					git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
+			if [[ -n "$cached_sha" ]]; then
+				if [[ "$cached_sha" == "$remote_sha" ]]; then
+					# SHA matches cache - check if file exists and is tracked
+					if [[ -f "$file" ]]; then
+						local is_tracked=false
+						git ls-files --error-unmatch "$file" >/dev/null 2>&1 && is_tracked=true
 
-					if [[ "$is_tracked" == "true" ]] && git diff --quiet "$file" 2>/dev/null; then
-						log_detail "Unchanged (SHA match), skipping"
+						if [[ "$is_tracked" == "true" ]] && git diff --quiet "$file" 2>/dev/null; then
+							log_detail "Unchanged (SHA match), skipping"
+							skipped+=("$file")
+							continue
+						fi
+					else
+						# File doesn't exist locally but SHA matches - strange, skip
+						log_detail "SHA matches but file missing, skipping"
 						skipped+=("$file")
 						continue
 					fi
 				else
-					# File doesn't exist locally but SHA matches - strange, skip
-					log_detail "SHA matches but file missing, skipping"
-					skipped+=("$file")
-					continue
+					log_detail "Remote changed (SHA mismatch), fetching..."
 				fi
-			else
-				log_detail "Remote changed (SHA mismatch), fetching..."
 			fi
 		fi
 
