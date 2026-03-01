@@ -178,7 +178,10 @@ save_sha_cache() {
 	local sha="$2"
 	local cache_dir=".dev-conventions-sync-cache"
 
-	mkdir -p "$cache_dir"
+	# Create directory structure if needed (e.g., conventions/ subdir)
+	local dir
+	dir=$(dirname "${cache_dir}/${file}")
+	mkdir -p "$dir"
 	echo "$sha" >"${cache_dir}/${file}.sha"
 }
 
