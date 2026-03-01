@@ -195,6 +195,9 @@ cmd_sync() {
 	local auto_commit=true
 	local auto_push=false
 
+	# Ensure cache directory exists
+	mkdir -p ".dev-conventions-sync-cache"
+
 	# Parse arguments
 	while [[ $# -gt 0 ]]; do
 		case "$1" in
