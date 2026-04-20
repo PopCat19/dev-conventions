@@ -122,8 +122,14 @@ if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
 fi
 
 log_info "Searching for dev-conventions.sh in $ROOT_DIR..."
-# Avoid .git directories
-mapfile -t FOUND_SCRIPTS < <(find "$ROOT_DIR" -name "dev-conventions.sh" -not -path "*/.git/*" -type f)
+# Find all dev-conventions.sh files, suppressing permission denied errors
+if command -v rg &>/dev/null; then
+	# Use ripgrep if available for speed and automatic noise filtering
+	mapfile -t FOUND_SCRIPTS < <(rg --files --glob "dev-conventions.sh" "$ROOT_DIR" 2>/dev/null)
+else
+	# Fallback to find, suppressing stderr
+	mapfile -t FOUND_SCRIPTS < <(find "$ROOT_DIR" -name "dev-conventions.sh" -not -path "*/.git/*" -type f 2>/dev/null)
+fi
 
 # Determine this script's project root to avoid self-processing
 SELF_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || pwd)"
