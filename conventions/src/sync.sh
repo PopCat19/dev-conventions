@@ -184,6 +184,21 @@ save_sha_cache() {
 	printf '%s' "$sha" >"$cache_file"
 }
 
+# Create a backup branch with timestamp
+create_git_backup() {
+	local current_branch
+	current_branch=$(get_current_branch)
+	local timestamp
+	timestamp=$(date +%Y%m%d%H%M%S)
+	local backup_branch="${current_branch}_${timestamp}"
+
+	if git branch "$backup_branch" 2>/dev/null; then
+		log_detail "Backup branch created: $backup_branch"
+		return 0
+	fi
+	return 1
+}
+
 # Consolidate subsequent linear dev-convention commits
 consolidate_dev_commits() {
 	local commit_msg="chore: sync dev-conventions"
@@ -203,6 +218,10 @@ consolidate_dev_commits() {
 
 	if [[ $count -gt 1 ]]; then
 		log_info "Consolidating $count subsequent dev-convention commits..."
+
+		# Create backup branch before dangerous operation
+		create_git_backup
+
 		# Soft reset to the commit before the sequence
 		if git reset --soft "HEAD~${count}"; then
 			if git commit -m "$commit_msg"; then
