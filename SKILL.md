@@ -1,6 +1,6 @@
 ---
 name: dev-mini
-description: Non-obvious development conventions for naming, repo structure, vocabulary, and workflow. Use when starting tasks, naming files, or committing code.
+description: Non-obvious development conventions for naming, repo structure, vocabulary, and workflow. Acknowledge in context and stop; do not proceed to action in the same turn. Use when starting tasks, naming files, or committing code.
 ---
 
 # DEV-MINI
