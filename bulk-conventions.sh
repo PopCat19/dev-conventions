@@ -122,8 +122,11 @@ if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
 fi
 
 log_info "Searching for dev-conventions.sh in $ROOT_DIR..."
-# Avoid .git directories and the current script's own location if it's in the search path
+# Avoid .git directories
 mapfile -t FOUND_SCRIPTS < <(find "$ROOT_DIR" -name "dev-conventions.sh" -not -path "*/.git/*" -type f)
+
+# Determine this script's project root to avoid self-processing
+SELF_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 TARGETS=()
 for script_path in "${FOUND_SCRIPTS[@]}"; do
@@ -138,6 +141,14 @@ for script_path in "${FOUND_SCRIPTS[@]}"; do
 	if [[ "$(basename "$script_dir")" == "conventions" ]]; then
 		run_dir="$(dirname "$script_dir")"
 		exec_path="./conventions/$script_name"
+	fi
+
+	# Get absolute path for execution
+	abs_run_dir="$(cd "$run_dir" && pwd)"
+
+	# Skip self
+	if [[ "$abs_run_dir" == "$SELF_ROOT" ]]; then
+		continue
 	fi
 
 	# Get relative path from root for filtering
@@ -197,12 +208,18 @@ for entry in "${TARGETS[@]}"; do
 	if [[ "$HARD_OVERWRITE" == "true" ]]; then
 		log_info "Hard overwriting conventions in $target_dir..."
 		# Copy conventions directory from this repo to target
+		# Using a subshell to avoid affecting current environment and handle potential errors gracefully
 		if cp -rf "${SCRIPT_DIR}/conventions" "$target_dir/"; then
 			log_success "Conventions overwritten"
 		else
-			log_error "Failed to overwrite conventions"
-			((FAILURE_COUNT++))
-			continue
+			# If they are the same file, cp might fail; we check if it's actually an error
+			if [[ "$(cd "${SCRIPT_DIR}/conventions" && pwd)" == "$(cd "$target_dir/conventions" 2>/dev/null && pwd)" ]]; then
+				log_detail "Target is the same as source, skipping copy"
+			else
+				log_error "Failed to overwrite conventions"
+				FAILURE_COUNT=$((FAILURE_COUNT + 1))
+				continue
+			fi
 		fi
 	fi
 
