@@ -52,6 +52,7 @@ ROOT_DIR=""
 INCLUDE_PAT=""
 EXCLUDE_PAT=""
 SKIP_COUNTDOWN=false
+HARD_OVERWRITE=false
 COMMAND_ARGS=()
 
 # Parse arguments
@@ -69,17 +70,22 @@ while [[ $# -gt 0 ]]; do
 		EXCLUDE_PAT="$2"
 		shift 2
 		;;
+	--hard)
+		HARD_OVERWRITE=true
+		shift
+		;;
 	--yes | -y)
 		SKIP_COUNTDOWN=true
 		shift
 		;;
 	--help | -h)
-		echo "Usage: $0 [options] <command> [command-args]"
+		echo "Usage: $0 --root <DIR> [options] <command> [command-args]"
 		echo ""
 		echo "Options:"
-		echo "  --root DIR       Root directory to search (default: .)"
+		echo "  --root DIR       Root directory to search (required)"
 		echo "  --include PAT    Regex pattern for directories to include"
 		echo "  --exclude PAT    Regex pattern for directories to exclude"
+		echo "  --hard           Force overwrite conventions/ from this repo before running command"
 		echo "  --yes, -y        Skip countdown"
 		exit 0
 		;;
@@ -120,12 +126,23 @@ log_info "Searching for dev-conventions.sh in $ROOT_DIR..."
 mapfile -t FOUND_SCRIPTS < <(find "$ROOT_DIR" -name "dev-conventions.sh" -not -path "*/.git/*" -type f)
 
 TARGETS=()
-for script in "${FOUND_SCRIPTS[@]}"; do
+for script_path in "${FOUND_SCRIPTS[@]}"; do
 	# Get directory containing the script
-	script_dir="$(dirname "$script")"
+	script_dir="$(dirname "$script_path")"
+	script_name="$(basename "$script_path")"
+	
+	# Determine the best directory to run from
+	# If script is in a 'conventions' folder, run from the parent (project root)
+	run_dir="$script_dir"
+	exec_path="./$script_name"
+	if [[ "$(basename "$script_dir")" == "conventions" ]]; then
+		run_dir="$(dirname "$script_dir")"
+		exec_path="./conventions/$script_name"
+	fi
+
 	# Get relative path from root for filtering
-	rel_path="${script_dir#$ROOT_DIR/}"
-	[[ "$rel_path" == "$script_dir" ]] && rel_path="."
+	rel_path="${run_dir#$ROOT_DIR/}"
+	[[ "$rel_path" == "$run_dir" ]] && rel_path="."
 
 	# Filter by include
 	if [[ -n "$INCLUDE_PAT" ]] && [[ ! "$rel_path" =~ $INCLUDE_PAT ]]; then
@@ -138,8 +155,9 @@ for script in "${FOUND_SCRIPTS[@]}"; do
 	fi
 
 	# Get absolute path for execution
-	abs_dir="$(cd "$script_dir" && pwd)"
-	TARGETS+=("$abs_dir")
+	abs_run_dir="$(cd "$run_dir" && pwd)"
+	abs_exec_path="$exec_path"
+	TARGETS+=("$abs_run_dir:$abs_exec_path")
 done
 
 if [[ ${#TARGETS[@]} -eq 0 ]]; then
@@ -149,8 +167,9 @@ fi
 
 echo ""
 log_info "The following repositories/directories will be affected:"
-for target in "${TARGETS[@]}"; do
-	printf "  ${ANSI_CYAN}- %s${ANSI_CLEAR}\n" "$target"
+for entry in "${TARGETS[@]}"; do
+	target_dir="${entry%%:*}"
+	printf "  ${ANSI_CYAN}- %s${ANSI_CLEAR}\n" "$target_dir"
 done
 echo ""
 log_info "Command to run: dev-conventions.sh ${COMMAND_ARGS[*]}"
@@ -168,11 +187,27 @@ fi
 SUCCESS_COUNT=0
 FAILURE_COUNT=0
 
-for target_dir in "${TARGETS[@]}"; do
-	echo ""
-	log_info ">>> Executing in: $target_dir"
+for entry in "${TARGETS[@]}"; do
+	target_dir="${entry%%:*}"
+	exec_path="${entry#*:}"
 	
-	if (cd "$target_dir" && ./dev-conventions.sh "${COMMAND_ARGS[@]}"); then
+	echo ""
+	log_info ">>> Processing: $target_dir"
+
+	if [[ "$HARD_OVERWRITE" == "true" ]]; then
+		log_info "Hard overwriting conventions in $target_dir..."
+		# Copy conventions directory from this repo to target
+		if cp -rf "${SCRIPT_DIR}/conventions" "$target_dir/"; then
+			log_success "Conventions overwritten"
+		else
+			log_error "Failed to overwrite conventions"
+			((FAILURE_COUNT++))
+			continue
+		fi
+	fi
+
+	log_info "Executing command in $target_dir: $exec_path ${COMMAND_ARGS[*]}"
+	if (cd "$target_dir" && "$exec_path" "${COMMAND_ARGS[@]}"); then
 		log_success "Completed: $target_dir"
 		SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
 	else
