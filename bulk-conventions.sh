@@ -31,6 +31,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB_SH="${SCRIPT_DIR}/conventions/src/lib.sh"
 
 # Source library for logging and colors if available
+# shellcheck source=conventions/src/lib.sh
 if [[ -f "$LIB_SH" ]]; then
 	# shellcheck disable=SC1091
 	source "$LIB_SH"
@@ -103,7 +104,7 @@ if [[ -z "$ROOT_DIR" ]]; then
 fi
 
 # Expand ~/ if present
-if [[ "$ROOT_DIR" == "~/"* ]]; then
+if [[ "$ROOT_DIR" == ~/* ]]; then
 	ROOT_DIR="${HOME}/${ROOT_DIR#\~/}"
 elif [[ "$ROOT_DIR" == "~" ]]; then
 	ROOT_DIR="${HOME}"
@@ -132,6 +133,7 @@ else
 fi
 
 # Determine this script's project root to avoid self-processing
+# shellcheck disable=SC2015
 SELF_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || pwd)"
 
 TARGETS=()
@@ -139,7 +141,7 @@ for script_path in "${FOUND_SCRIPTS[@]}"; do
 	# Get directory containing the script
 	script_dir="$(dirname "$script_path")"
 	script_name="$(basename "$script_path")"
-	
+
 	# Determine the best directory to run from
 	# If script is in a 'conventions' folder, run from the parent (project root)
 	run_dir="$script_dir"
@@ -158,7 +160,7 @@ for script_path in "${FOUND_SCRIPTS[@]}"; do
 	fi
 
 	# Get relative path from root for filtering
-	rel_path="${run_dir#$ROOT_DIR/}"
+	rel_path="${run_dir#"$ROOT_DIR"/}"
 	[[ "$rel_path" == "$run_dir" ]] && rel_path="."
 
 	# Filter by include
@@ -193,9 +195,9 @@ log_info "Command to run: dev-conventions.sh ${COMMAND_ARGS[*]}"
 echo ""
 
 if [[ "$SKIP_COUNTDOWN" == "false" ]]; then
-	printf "${ANSI_YELLOW}Starting bulk operation in: ${ANSI_CLEAR}"
+	printf "%s" "${ANSI_YELLOW}Starting bulk operation in: ${ANSI_CLEAR}"
 	for i in {10..1}; do
-		printf "${ANSI_YELLOW}%s... ${ANSI_CLEAR}" "$i"
+		printf "%s" "${ANSI_YELLOW}$i... ${ANSI_CLEAR}"
 		sleep 1
 	done
 	echo "0!"
@@ -207,7 +209,7 @@ FAILURE_COUNT=0
 for entry in "${TARGETS[@]}"; do
 	target_dir="${entry%%:*}"
 	exec_path="${entry#*:}"
-	
+
 	echo ""
 	log_info ">>> Processing: $target_dir"
 
