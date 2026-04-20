@@ -471,7 +471,22 @@ cmd_sync() {
 					fi
 
 					if [[ "$has_remote" == "true" ]]; then
+						# Check for uncommitted changes outside of conventions/
+						local dirty_files
+						dirty_files=$(git status --porcelain 2>/dev/null | grep -vE "^.. (conventions/|\.dev-conventions-sync-cache/)" || true)
+						if [[ -n "$dirty_files" ]]; then
+							log_warn "Uncommitted changes found outside of conventions/. Skipping push for safety."
+							log_detail "Dirty files:\n$dirty_files"
+							return 0
+						fi
+
 						if [[ "$has_upstream" == "true" ]]; then
+							log_info "Pulling latest changes..."
+							if ! git pull --rebase --quiet; then
+								log_error "Pull failed. Please resolve conflicts manually."
+								return 1
+							fi
+
 							log_info "Auto-pushing..."
 							local push_args=()
 							if [[ "$history_changed" == "true" ]]; then
