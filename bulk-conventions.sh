@@ -194,14 +194,14 @@ echo ""
 log_info "Command to run: dev-conventions.sh ${COMMAND_ARGS[*]}"
 echo ""
 
-if [[ "$SKIP_COUNTDOWN" == "false" ]]; then
-	printf "%s" "${ANSI_YELLOW}Starting bulk operation in: ${ANSI_CLEAR}"
-	for i in {10..1}; do
-		printf "%s" "${ANSI_YELLOW}$i... ${ANSI_CLEAR}"
-		sleep 1
-	done
-	echo "0!"
-fi
+	if [[ "$SKIP_COUNTDOWN" == "false" ]]; then
+		printf "Starting bulk operation in: "
+		for i in {10..1}; do
+			printf "%s... " "$i"
+			sleep 1
+		done
+		echo "0!"
+	fi
 
 SUCCESS_COUNT=0
 FAILURE_COUNT=0

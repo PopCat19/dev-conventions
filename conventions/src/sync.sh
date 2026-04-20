@@ -383,7 +383,8 @@ cmd_sync() {
 			if [[ "$auto_commit" == "true" ]]; then
 				log_info "Auto-committing changes..."
 				git add conventions/
-				[[ -d ".dev-conventions-sync-cache" ]] && git add .dev-conventions-sync-cache/
+				# Gracefully handle if sync cache is ignored or missing
+				git add .dev-conventions-sync-cache/ 2>/dev/null || true
 
 				if git diff --cached --quiet; then
 					log_detail "No changes to commit"
@@ -393,15 +394,33 @@ cmd_sync() {
 				fi
 
 				if [[ "$auto_push" == "true" ]]; then
+					# Check if remote exists and has an upstream configured
+					local current_branch
+					current_branch=$(get_current_branch)
+					local has_remote=false
+					local has_upstream=false
+
 					if git remote >/dev/null 2>&1; then
-						log_info "Auto-pushing..."
-						if git push; then
-							log_detail "Pushed to remote"
+						has_remote=true
+						if git rev-parse --abbrev-ref "${current_branch}@{u}" >/dev/null 2>&1; then
+							has_upstream=true
+						fi
+					fi
+
+					if [[ "$has_remote" == "true" ]]; then
+						if [[ "$has_upstream" == "true" ]]; then
+							log_info "Auto-pushing..."
+							if git push; then
+								log_detail "Pushed to remote"
+							else
+								log_warn "Push failed (check network or permissions)"
+							fi
 						else
-							log_warn "Push failed (check network or permissions)"
+							log_warn "No upstream branch configured for $current_branch, skipping push"
+							log_detail "Hint: Run 'git push -u origin $current_branch' manually"
 						fi
 					else
-						log_warn "No remote configured, skipping push"
+						log_detail "No remote configured, skipping push"
 					fi
 				fi
 			else
