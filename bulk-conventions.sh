@@ -103,8 +103,8 @@ if [[ -z "$ROOT_DIR" ]]; then
 	exit 1
 fi
 
-# Expand ~/ if present
-if [[ "$ROOT_DIR" == ~/* ]]; then
+# Expand literal ~/ if present (if not already expanded by shell)
+if [[ "$ROOT_DIR" == "~/"* ]]; then
 	ROOT_DIR="${HOME}/${ROOT_DIR#\~/}"
 elif [[ "$ROOT_DIR" == "~" ]]; then
 	ROOT_DIR="${HOME}"
