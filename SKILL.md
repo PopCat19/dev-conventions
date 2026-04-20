@@ -1,6 +1,11 @@
+---
+name: dev-mini
+description: Non-obvious development conventions for naming, repo structure, vocabulary, and workflow. Use when starting tasks, naming files, or committing code.
+---
+
 # DEV-MINI
 
-Purpose: Non-obvious conventions only. Assumes standard SWE practices. Principles: KISS, DRY, SoC, SRP, CoC. Vocabulary: Rule 21 in DEVELOPMENT.md.
+Purpose: Non-obvious conventions only. Assumes standard SWE practices. Principles: KISS, DRY, SoC, SRP, CoC. Vocabulary: Rule 21 in conventions/DEVELOPMENT.md.
 
 ## Naming
 
@@ -42,7 +47,7 @@ Prefer established terms when describing repo structure. Quick reference:
 - **Specification** — defines what it means to satisfy a named policy
 - **Strategy** — per-entity override of shared behavior; same interface, different implementation
 - **Detached Instance** — a unit that opted out of shared behavior; owns its copy
-- **Ubiquitous Language** — this vocabulary; full definitions at Rule 21 in DEVELOPMENT.md
+- **Ubiquitous Language** — this vocabulary; full definitions at Rule 21 in conventions/DEVELOPMENT.md
 
 **Repo-specific mapping:** Do not embed project paths here. Map terms to
 your repo's actual structure in your root `context.md` under a
