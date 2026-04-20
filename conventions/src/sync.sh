@@ -282,7 +282,7 @@ cmd_sync() {
 		cached_sha=$(get_cached_sha "$file") || cached_sha=""
 
 		remote_sha=$(get_file_sha "$file" "$remote_url" "$ref") || {
-			log_warn "Could not get SHA for $file, falling back to content diff"
+			log_detail "Could not get SHA for $file, falling back to content diff"
 		}
 
 		if [[ -n "$remote_sha" && "$remote_sha" == "$cached_sha" ]]; then
