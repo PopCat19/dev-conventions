@@ -77,7 +77,6 @@ while [[ $# -gt 0 ]]; do
 		;;
 	--yes | -y)
 		SKIP_COUNTDOWN=true
-		COMMAND_ARGS+=("$1")
 		shift
 		;;
 	--help | -h)
