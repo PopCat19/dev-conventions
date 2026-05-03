@@ -1377,8 +1377,7 @@ git rebase -i HEAD~3
 - No priority markers
   - Bad: "TODO (HIGH PRIORITY): Fix bug"
   - Good: "Fix: API returns 500 on empty payload"
-- Verified claims only
-  - If unsure, say "may" or "typically" rather than stating as fact
+- **Informed over assumed:** State only what has been verified. If unverified, qualify explicitly ("untested", "theoretical", "may"). Avoid filling gaps with plausible-sounding mechanisms — a gap is better than a wrong explanation. Trivial claims exempt.
 
 **Code blocks when used:**
 ````markdown

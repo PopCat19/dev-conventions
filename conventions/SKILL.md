@@ -60,6 +60,7 @@ your repo's actual structure in your root `context.md` under a
 - No markdown docs unless requested
 - Duplicate facts inline over cross-references
 - No time markers ("as of 2024"), no priority markers
+- Informed over assumed — qualify unverified claims ("untested", "theoretical"). Avoid filling gaps with assumed mechanisms unless trivial.
 - When docs are warranted, use HTML5 `<details>/<summary>` for collapsible sections: `<details>` (collapsed by default), `<details open>` for priority sections. Prefer bullets over tables inside details.
 - One topic per line — split dense paragraphs at idea boundaries. Conjunctive chains (and, then, also) signal separate lines.
 

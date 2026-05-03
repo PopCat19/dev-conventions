@@ -689,3 +689,12 @@ Boot NixOS on locked ChromeOS devices via the RMA shim vulnerability, no firmwar
 # Good: Unicode symbol (consistent rendering)
 | dedede | Intel | 5.4.85 | 258 ✓ · 259 ✓ |
 ```
+
+**Informed over assumed:**
+```markdown
+# Bad: invents mechanism to fill explanatory gap
+Systemd 258+ uses open_tree/move_mount syscalls. ChromeOS kernels backport these, so 258 works.
+
+# Good: states what's verified, leaves gap explicit
+Systemd 258 tested working on dedede. The mechanism is not confirmed — ChromeOS kernel may backport the required syscalls, or the constraint may not apply.
+```
