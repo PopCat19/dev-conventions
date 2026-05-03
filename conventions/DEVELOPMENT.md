@@ -1841,6 +1841,7 @@ const reverseString = (str) => {
 - **No emoticons** unless explicitly requested
   - Bad: `# 🚀 Deploy script`
   - Good: `# Deploy script`
+- **Prefer Unicode symbols over emojis** when icons are needed: use text-category symbols (✓, ✗, →, ⚠) not emoji-category pictograms (✅, ❌, 🚀). Unicode symbols render consistently across terminals and fonts.
 - **Abbreviate common terms** (unless stated otherwise):
   - configuration → config (context-dependent)
   - repository → repo

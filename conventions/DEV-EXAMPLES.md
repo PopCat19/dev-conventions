@@ -680,3 +680,12 @@ ChromeOS RMA shims are bootable recovery images. They run even on enterprise-enr
 # Good: comma
 Boot NixOS on locked ChromeOS devices via the RMA shim vulnerability, no firmware modification, no unenrollment.
 ```
+
+**Prefer Unicode symbols over emojis:**
+```markdown
+# Bad: emoji checkmarks (render inconsistently across terminals)
+| dedede | Intel | 5.4.85 | 258 ✅ · 259 ✅ |
+
+# Good: Unicode symbol (consistent rendering)
+| dedede | Intel | 5.4.85 | 258 ✓ · 259 ✓ |
+```
