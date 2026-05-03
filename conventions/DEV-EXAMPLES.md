@@ -512,6 +512,23 @@ git rebase -i HEAD~3
 
 ## Documentation (Rule 12)
 
+**Sentence-level readability — one topic per line:**
+```markdown
+# Bad: three unrelated ideas in one sentence
+This project uses a flake-based approach over the original scripts, which expect a FHS-compliant build host, and Nix flakes provide reliable, declarative image generation.
+
+# Good: split at idea boundaries
+This project uses a flake-based approach over the original scripts, which expect a FHS-compliant build host.
+
+Nix flakes with `raw-efi` image building provide reliable, declarative image generation on NixOS.
+```
+
+**When used:**
+- Conjunctive chains (and, then, also) → separate lines
+- Distinct concepts or steps → separate lines
+- Explanations of *why* → their own line
+- Parenthetical asides → own sentence or paragraph
+
 **Self-documenting structure:**
 ```
 # Good: Structure conveys purpose

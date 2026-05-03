@@ -1432,6 +1432,31 @@ Content here — use bullets, code blocks, etc.
 - Prefer bullet lists over tables within collapsed sections
 - Collapsing reduces scroll fatigue while keeping all info accessible
 
+### Sentence-Level Readability
+
+**Rule:** One topic per line in markdown documentation. Split dense paragraphs at idea boundaries.
+
+```markdown
+# Bad: three topics crammed into one sentence
+The script builds Nix derivations, harvests ChromeOS drivers from the recovery image, and assembles a partitioned disk image at work/shimboot.img.
+
+# Good: one idea per line
+The script builds Nix derivations and harvests ChromeOS drivers from the recovery image.
+
+Assembles a partitioned disk image at `work/shimboot.img`.
+```
+
+**When to split:**
+- Each sentence introduces a distinct concept or step
+- Conjunctive chains (and, then, also) signal separate ideas
+- Explanations of *why* belong on their own line
+- Parenthetical asides should become their own sentence or paragraph
+
+**Why:**
+- Scanning is faster than reading — one idea per line lets readers skip irrelevant topics without parsing compound sentences
+- Diffs are cleaner — changing one idea changes one line, not a shared sentence
+- Reduces cognitive load — no parsing of comma-separated topic shifts
+
 ## 13. Validation
 
 **Rationale:** Automated checks catch errors before they reach production. Committing broken code wastes reviewer time.
