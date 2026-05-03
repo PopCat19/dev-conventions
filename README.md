@@ -24,7 +24,7 @@ Copy `conventions/` to any project. Point LLM agents at `AGENTS.md` or `DEVELOPM
 
 ## Setup
 
-1. Copy the `conventions/` directory to your project root
+1. Copy `conventions/` to a project root
 2. Make the CLI executable: `chmod +x conventions/dev-conventions.sh`
 3. Point agents at `AGENTS.md` or `DEVELOPMENT.md`
 
@@ -70,3 +70,5 @@ Copy `conventions/` to any project. Point LLM agents at `AGENTS.md` or `DEVELOPM
 - Core principles (KISS, DRY, maintainable over clever)
 
 See [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) for full details.
+
+<!-- generated: 20260503-88d0d29 -->
