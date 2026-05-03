@@ -1414,6 +1414,24 @@ configuration/
 
 **Lazy principle:** Tree exploration > README maintenance. Newcomers learn by examining structure.
 
+### Collapsible Docs
+
+When documentation sections are numerous or long, use HTML5 `<details>/<summary>` for collapsibility:
+
+```markdown
+<details>
+<summary>Section Title</summary>
+
+Content here — use bullets, code blocks, etc.
+
+</details>
+```
+
+- All sections collapsed by default (`<details>` without `open`)
+- Open only high-priority sections (e.g. installation): `<details open>`
+- Prefer bullet lists over tables within collapsed sections
+- Collapsing reduces scroll fatigue while keeping all info accessible
+
 ## 13. Validation
 
 **Rationale:** Automated checks catch errors before they reach production. Committing broken code wastes reviewer time.
