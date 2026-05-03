@@ -666,3 +666,17 @@ sudo tee "$DEST/build.json" >/dev/null <<EOF
 }
 EOF
 ```
+
+## Tone and Formatting (Rule 16)
+
+**No em dashes — use commas or sentence separation:**
+```markdown
+# Bad
+ChromeOS RMA shims are bootable recovery images — they run even on enterprise-enrolled devices.
+
+# Good: sentence split
+ChromeOS RMA shims are bootable recovery images. They run even on enterprise-enrolled devices.
+
+# Good: comma
+Boot NixOS on locked ChromeOS devices via the RMA shim vulnerability, no firmware modification, no unenrollment.
+```

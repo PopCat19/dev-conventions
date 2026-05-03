@@ -1847,6 +1847,9 @@ const reverseString = (str) => {
   - temporary → temp
   - initialize → init
 - **Professional tone:** Technical, direct, unambiguous
+- **No em dashes:** Use commas or split into separate sentences. Em dashes obscure sentence boundaries and complicate diffing.
+  - Bad: `The shim is unverified — it can be replaced.`
+  - Good: `The shim is unverified. It can be replaced.`
 - **Avoid redundancy:** Each word should add value
 
 ## 17. Example Patterns

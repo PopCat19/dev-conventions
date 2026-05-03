@@ -67,6 +67,7 @@ your repo's actual structure in your root `context.md` under a
 
 - No first-person ("I", "we") in code, comments, or commits
 - No emoticons unless requested
+- No em dashes — use commas or sentence separation
 - Abbreviate: config, repo, temp, init
 
 ## File Headers
