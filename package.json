@@ -1,0 +1,26 @@
+{
+  "name": "dev-conventions",
+  "version": "0.1.0",
+  "description": "Dev-mini conventions skill for Pi coding agent — naming, structure, vocabulary, and workflow rules",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "skill",
+    "conventions",
+    "dev-mini"
+  ],
+  "author": "PopCat19",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PopCat19/dev-conventions.git"
+  },
+  "homepage": "https://github.com/PopCat19/dev-conventions#readme",
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  }
+}
