@@ -1851,6 +1851,28 @@ const reverseString = (str) => {
   - Bad: `The shim is unverified — it can be replaced.`
   - Good: `The shim is unverified. It can be replaced.`
 - **Avoid redundancy:** Each word should add value
+- **Anti-slop writing rules:** The patterns below mark machine-generated prose. Avoid them in all developer writing: comments, commit messages, docs, code review, and architecture decisions.
+
+**Banned intensifiers** (replace with the number or fact they stand in for):
+  - extremely, dramatically, exceptionally, significantly, incredibly, remarkably, truly, absolutely, literally, very, quite, rather
+
+**Banned filler phrases:**
+  - "In today's world", "It's important to note", "When it comes to", "At the end of the day", "It goes without saying", "Look no further", "Let's dive in", "Here's the thing", "But here's the kicker"
+
+**Banned AI verbs** (use plain equivalents):
+  - delve → explore, leverage → use, utilize → use, facilitate → help/enable, foster → encourage, bolster → strengthen, underscore → highlight, unveil → reveal, streamline → simplify, endeavour → try, ascertain → find out, elucidate → explain
+
+**Banned AI transitions** (use plain connectors):
+  - Furthermore, Moreover, Notwithstanding, That being said, In essence, At its core, To put it simply, It is worth noting that
+
+**Banned academic tells:**
+  - "shed light on", "pave the way for", "a myriad of", "a plethora of", paramount, prior to → before, subsequent to → after, in terms of → about/for
+
+**No weasel words:** "may potentially", "helps ensure", "can potentially" — either the thing happens or it does not. Commit or cut.
+
+**No dramatic or narrative headings:** Headings describe what the section contains, not what it means. Use concrete, technical descriptions — not thriller chapter titles.
+  - Bad: "The Hidden Cost of Convenience"
+  - Good: "Subscription cost accumulation over time"
 
 ## 17. Example Patterns
 

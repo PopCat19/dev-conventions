@@ -71,6 +71,12 @@ your repo's actual structure in your root `context.md` under a
 - Prefer Unicode symbols over emojis (✓ ✗ → ⚠, not ✅ ❌ 🚀)
 - No em dashes — use commas or sentence separation
 - Abbreviate: config, repo, temp, init
+- No intensifiers: extremely, dramatically, significantly, very — prove with a fact or cut
+- No AI verbs: leverage, utilize, facilitate, delve, bolster, underscore, streamline — use plain equivalents (use, help, explore, strengthen, highlight, simplify)
+- No weasel words: may potentially, helps ensure, can potentially — commit or cut
+- No filler phrases: "In today's world", "It's important to note", "When it comes to" — open on the fact
+- No AI transition words: Furthermore, Moreover, That being said, In essence — use plain connectors (also, and, but, however)
+- Full banned-words reference: DEVELOPMENT.md §16
 
 ## File Headers
 
