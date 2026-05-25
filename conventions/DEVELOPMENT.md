@@ -791,7 +791,7 @@ nix-shell -p pandoc --run "pandoc input.md -o output.pdf"
   - Enables selective imports/overrides
 - **SoC in practice:** Each module directory maps to one concern
   (`system/`, `home/`, `secrets/`). Avoid catch-all directories
-  (`misc/`, `stuff/`, `helpers/`) — if a name doesn't declare a concern,
+  (`misc/`, `stuff/`, `helpers/`). If a name doesn't declare a concern,
   the structure is wrong
 - **SRP in practice:** If a file changes for two unrelated reasons across
   separate commits, it should have been two files
@@ -845,7 +845,7 @@ configuration/
 
 **Rationale:** Large monolithic files obscure boundaries between concerns. Splitting by role makes changes traceable, reviews focused, and imports selective. A soft threshold prevents premature fragmentation while nudging toward healthier structure.
 
-**When to stratify:** Consider splitting files approaching **800–1000 lines** (soft guideline). Context matters — some files are naturally long (e.g., single-file deployments, portable scripts). Don't split for the sake of splitting.
+**When to stratify:** Consider splitting files approaching **800–1000 lines** (soft guideline). Context matters; some files are naturally long (e.g., single-file deployments, portable scripts). Don't split for the sake of splitting.
 
 **Two valid patterns:**
 
@@ -1377,7 +1377,7 @@ git rebase -i HEAD~3
 - No priority markers
   - Bad: "TODO (HIGH PRIORITY): Fix bug"
   - Good: "Fix: API returns 500 on empty payload"
-- **Informed over assumed:** State only what has been verified. If unverified, qualify explicitly ("untested", "theoretical", "may"). Avoid filling gaps with plausible-sounding mechanisms — a gap is better than a wrong explanation. Trivial claims exempt.
+- **Informed over assumed:** State only what has been verified. If unverified, qualify explicitly ("untested", "theoretical", "may"). Avoid filling gaps with plausible-sounding mechanisms; a gap is better than a wrong explanation. Trivial claims exempt.
 
 **Code blocks when used:**
 ````markdown
@@ -1868,9 +1868,9 @@ const reverseString = (str) => {
 **Banned academic tells:**
   - "shed light on", "pave the way for", "a myriad of", "a plethora of", paramount, prior to → before, subsequent to → after, in terms of → about/for
 
-**No weasel words:** "may potentially", "helps ensure", "can potentially" — either the thing happens or it does not. Commit or cut.
+**No weasel words:** "may potentially", "helps ensure", "can potentially". Either the thing happens or it does not. Commit or cut.
 
-**No dramatic or narrative headings:** Headings describe what the section contains, not what it means. Use concrete, technical descriptions — not thriller chapter titles.
+**No dramatic or narrative headings:** Headings describe what the section contains, not what it means. Use concrete, technical descriptions, not thriller chapter titles.
   - Bad: "The Hidden Cost of Convenience"
   - Good: "Subscription cost accumulation over time"
 
@@ -1902,7 +1902,7 @@ See [DEV-EXAMPLES.md](./DEV-EXAMPLES.md) for concrete reference examples from re
 
 ### Systemd
 
-- Not every host runs systemd — could be non-systemd Linux, BSD, macOS, WSL, etc.
+- Not every host runs systemd; could be non-systemd Linux, BSD, macOS, WSL, etc.
 - Do not assume `systemctl` exists; if the command fails or doesn't exist, skip it
 - Do not wrap systemd-dependent commands in error traps that abort the whole one-shot
 - Prefer checking availability first: `command -v systemctl &>/dev/null && systemctl ...`
@@ -1910,7 +1910,7 @@ See [DEV-EXAMPLES.md](./DEV-EXAMPLES.md) for concrete reference examples from re
 
 ### Search tools
 
-- **Prefer ripgrep (`rg`)** when available — faster, respects `.gitignore` automatically
+- **Prefer ripgrep (`rg`)** when available; faster, respects `.gitignore` automatically
 - **Fallback:** `grep -r` with shell globs, `awk`, `sed`, or any available tools as appropriate
 - Do not assume `rg` exists; check with `command -v rg &>/dev/null` or just use `grep -r` if uncertain
 
@@ -2209,7 +2209,7 @@ For contributors coming from a design background:
 When a unit-level override exists for a concern, that unit has **detached
 from the shared model** for that concern. In Figma terms: detached
 instance. In DDD terms: bounded context with a broken conformist
-relationship. Both mean the same thing — it opted out, it owns the copy,
+relationship. Both mean the same thing; it opted out, it owns the copy,
 changes to base will not propagate to it automatically.
 
 ---

@@ -169,7 +169,7 @@ cli_retry 3 5 curl -fsSL "$URL" -o "$DEST"
 **Prompts degrade gracefully in non-tty:**
 ```bash
 # cli_prompt_yn returns 1 (no) silently when stdin is not a tty
-# Safe to call unconditionally — no hang in CI
+# Safe to call unconditionally; no hang in CI
 
 cli_prompt_yn "Enable LUKS2 encryption?" "n" && LUKS_ENABLED=1
 
@@ -179,7 +179,7 @@ log_info "Selected: ${CLI_CHOICE}"
 
 **CI color suppression is automatic:**
 ```bash
-# No guard needed — _cli_use_color() checks:
+# No guard needed; _cli_use_color() checks:
 #   isatty, $NO_COLOR, $CI, $GITHUB_ACTIONS
 # Plain text emitted automatically in CI pipelines
 ```
@@ -672,7 +672,7 @@ EOF
 **No em dashes — use commas or sentence separation:**
 ```markdown
 # Bad
-ChromeOS RMA shims are bootable recovery images — they run even on enterprise-enrolled devices.
+ChromeOS RMA shims are bootable recovery images; they run even on enterprise-enrolled devices.
 
 # Good: sentence split
 ChromeOS RMA shims are bootable recovery images. They run even on enterprise-enrolled devices.
@@ -696,5 +696,5 @@ Boot NixOS on locked ChromeOS devices via the RMA shim vulnerability, no firmwar
 Systemd 258+ uses open_tree/move_mount syscalls. ChromeOS kernels backport these, so 258 works.
 
 # Good: states what's verified, leaves gap explicit
-Systemd 258 tested working on dedede. The mechanism is not confirmed — ChromeOS kernel may backport the required syscalls, or the constraint may not apply.
+Systemd 258 tested working on dedede. The mechanism is not confirmed; ChromeOS kernel may backport the required syscalls, or the constraint may not apply.
 ```
