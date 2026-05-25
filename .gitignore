@@ -1,5 +1,6 @@
 # Sync cache
 .dev-conventions-sync-cache/
+conventions/.dev-conventions-sync-cache/
 
 # Temp files
 *.tmp
