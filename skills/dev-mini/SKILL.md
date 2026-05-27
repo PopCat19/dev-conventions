@@ -76,7 +76,13 @@ your repo's actual structure in your root `context.md` under a
 - No weasel words: may potentially, helps ensure, can potentially — commit or cut
 - No filler phrases: "In today's world", "It's important to note", "When it comes to" — open on the fact
 - No AI transition words: Furthermore, Moreover, That being said, In essence — use plain connectors (also, and, but, however)
-- Full banned-words reference: DEVELOPMENT.md §16
+- No hollow statements: every claim must end on a concrete, verifiable detail
+- No dramatic or narrative headings: name the content, do not tease it
+- No unsourced statistics: every number must be real and attributable; cut it if not
+- No fabricated facts: never invent case studies, dates, milestones, or attributed quotes
+- No synthetic enthusiasm: no exclamation marks or cheerleading
+- Hedging threshold: more than three epistemic hedges ("may", "might", "potentially") in a declarative paragraph is a red flag
+- Full banned-words reference and self-check pass: DEVELOPMENT.md §16
 
 ## File Headers
 

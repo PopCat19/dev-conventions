@@ -71,4 +71,4 @@ Copy `conventions/` to any project. Point LLM agents at `AGENTS.md` or `DEVELOPM
 
 See [`DEVELOPMENT.md`](conventions/DEVELOPMENT.md) for full details.
 
-<!-- generated: 20260503-88d0d29 -->
+<!-- generated: 20260527-9ee0b2b -->
