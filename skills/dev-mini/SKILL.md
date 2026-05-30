@@ -128,6 +128,16 @@ One-shot commands: wrap output for `wl-copy` so it can be sent in one shot.
 - Squash only on experimental branches, never on shared branches
 - Stage before Nix flake commands (`git add --intent-to-add .`)
 
+## Context Recovery
+
+When the next user message after convention-loading is an action command
+(proceed, apply, go, continue, changes) with no explicit task description,
+investigate before asking for clarification:
+- `git stash list` — WIP stashes may describe pending work
+- `git status` — uncommitted changes in the working tree
+- `git log --oneline -5` — recent commit messages for related work
+- Project `AGENTS.md` or root `context.md` for task cues
+
 ## Validation
 
 - Ask before running `nix flake check` (resource-intensive, CI typically handles it)
