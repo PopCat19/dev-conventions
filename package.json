@@ -21,6 +21,12 @@
   "pi": {
     "skills": [
       "./skills"
+    ],
+    "extensions": [
+      "./src/index.ts"
     ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
   }
 }
