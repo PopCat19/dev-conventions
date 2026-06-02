@@ -4,3 +4,7 @@ conventions/.dev-conventions-sync-cache/
 
 # Temp files
 *.tmp
+
+# Command Code agent local data (taste, session logs)
+.commandcode/
+/pi-session-*.html
