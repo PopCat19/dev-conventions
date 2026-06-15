@@ -8,7 +8,9 @@ Read `README.md` for the human-facing overview. See `conventions/DEVELOPMENT.md`
 
 ## README workflow
 
-The README is generated from fragments. Edit `readme_manifest/*.md`, then run:
+The README is generated from fragments.
+
+Edit `readme_manifest/*.md`, then run:
 
 ```bash
 bash tools/generate-readme.sh

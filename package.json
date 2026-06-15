@@ -1,7 +1,7 @@
 {
   "name": "dev-conventions",
   "version": "0.1.0",
-  "description": "Dev-mini conventions skill for Pi coding agent — naming, structure, vocabulary, and workflow rules",
+  "description": "Dev-mini conventions skill for Pi coding agent, naming, structure, vocabulary, and workflow rules",
   "type": "module",
   "keywords": [
     "pi-package",

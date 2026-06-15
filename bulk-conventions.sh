@@ -113,7 +113,7 @@ fi
 # Warn about the root directory
 log_warn "Target root directory set to: $ROOT_DIR"
 if [[ "$ROOT_DIR" == "$HOME" || "$ROOT_DIR" == "/" ]]; then
-	log_warn "Caution: Operating on a very broad scope ($ROOT_DIR)"
+	log_warn "Caution: Operating on a broad scope ($ROOT_DIR)"
 fi
 
 if [[ ${#COMMAND_ARGS[@]} -eq 0 ]]; then
